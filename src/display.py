@@ -28,7 +28,7 @@ def display_analytic_data_command_line():
     for team in DISPLAY_DATA.keys():
         print(f'COUNTRY: {team.upper()}\n'
               f'TOTAL APPEARANCES: {DISPLAY_DATA[team]['total_appearances']} TOTAL WINS: {DISPLAY_DATA[team]['win_total']} '
-              f'TOTAL LOSSES: {DISPLAY_DATA[team]['loss_total']} TEAM DRAWS: {DISPLAY_DATA[team]['draw_total']}\n'
+              f'TOTAL LOSSES: {DISPLAY_DATA[team]['loss_total']} TOTAL DRAWS: {DISPLAY_DATA[team]['draw_total']}\n'
               f'WIN RATE: {DISPLAY_DATA[team]['win_rate']} LOSS RATE: {DISPLAY_DATA[team]['loss_rate']}')
 
         print("-------------------------------------------------------------------")
