@@ -1,14 +1,17 @@
 from parsing import parse_file
+from analytics import build_analytic_data
 
-def display_command_line():
+RAW_DATA = parse_file()
+DISPLAY_DATA = build_analytic_data()
+
+def display_raw_data_command_line():
     """
     Display data from rugby dataset to the terminal
     :return: None
     """
+    global RAW_DATA
 
-    data = parse_file()
-    print("date,home_team,away_team,home_score,away_score,competition,stadium,city,country,neutral,world_cup")
-    for line in data:
+    for line in RAW_DATA:
         print(f'Date:{line['date']}\n'
               f'Home Team: {line['home_team']} Away Team: {line['away_team']}\n'
               f'Home Score: {line['home_score']} Away Score: {line['away_score']}\n'
@@ -17,4 +20,17 @@ def display_command_line():
               f'Neutral: {line['neutral']} World Cup: {line['world_cup']}\n')
         print("-----------------------------------------------------------------")
 
-display_command_line()
+def display_analytic_data_command_line():
+    """
+    Display calculated analytic data to the command line
+    :return: None
+    """
+    for team in DISPLAY_DATA.keys():
+        print(f'COUNTRY: {team.upper()}\n'
+              f'TOTAL APPEARANCES: {DISPLAY_DATA[team]['total_appearances']} TOTAL WINS: {DISPLAY_DATA[team]['win_total']} '
+              f'TOTAL LOSSES: {DISPLAY_DATA[team]['loss_total']} TEAM DRAWS: {DISPLAY_DATA[team]['draw_total']}\n'
+              f'WIN RATE: {DISPLAY_DATA[team]['win_rate']} LOSS RATE: {DISPLAY_DATA[team]['loss_rate']}')
+
+        print("-------------------------------------------------------------------")
+# display_raw_data_command_line()
+display_analytic_data_command_line()

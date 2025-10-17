@@ -1,63 +1,100 @@
 from parsing import parse_file
+from utils import init_dict
 
 TEAMS = []
-DATA = parse_file()
+RAW_DATA = parse_file()
 TEAM_WINS = {}
 TOTAL_APPEARANCES = {}
 WIN_RATES = {}
+TEAM_LOSSES = {}
+LOSS_RATES = {}
+TEAM_TIES = {}
 
 def get_countries():
     """
     Get countries that played from dataset
     :return: List of countries that played
     """
-    global DATA, TEAMS
-    for line in DATA:
+    global TEAMS
+    for line in RAW_DATA:
         if line['home_team'] not in TEAMS:
             TEAMS.append(line['home_team'])
-    print(TEAMS)
     return TEAMS
 
-def calculate_win_totals():
+def calculate_win_loss_totals():
     """
-    Calculate win totals of each country
-    :return: Dict of countries, win_total
+    Calculate win and loss totals of each country
+    :return: Tuple of win loss Dicts of countries, win_total
     """
-    global TEAM_WINS, TEAMS, DATA
-    for team in TEAMS:
-        TEAM_WINS[team] = 0
+    global TEAM_WINS, TEAM_LOSSES, TEAM_TIES
+    TEAM_WINS = init_dict(TEAMS)
+    TEAM_LOSSES = init_dict(TEAMS)
+    TEAM_TIES = init_dict(TEAMS)
 
-    for line in DATA:
+    for line in RAW_DATA:
         if line['away_score'] > line['home_score']:
             TEAM_WINS[line['away_team']] += 1
+            TEAM_LOSSES[line['home_team']] += 1
         elif line['home_score'] > line['away_score']:
             TEAM_WINS[line['home_team']] += 1
-    print(TEAM_WINS)
-    return TEAM_WINS
+            TEAM_LOSSES[line['away_team']] += 1
+        elif line['home_score'] == line['away_score']:
+            TEAM_TIES[line['home_team']] += 1
+            TEAM_TIES[line['away_team']] += 1
+
+    return TEAM_WINS, TEAM_LOSSES, TEAM_TIES
 
 def calculate_total_appearances():
     """
     Calculate each countries total appearances
     :return: Dict of countries, total_appearances
     """
-    global DATA, TOTAL_APPEARANCES, TEAMS
-    for team in TEAMS:
-        TOTAL_APPEARANCES[team] = 0
+    global TOTAL_APPEARANCES
+    TOTAL_APPEARANCES = init_dict(TEAMS)
 
     for team in TEAMS:
-        for line in DATA:
+        for line in RAW_DATA:
             if line['away_team'] == team or line['home_team'] == team:
                 TOTAL_APPEARANCES[team] +=1
-    print(TOTAL_APPEARANCES)
     return TOTAL_APPEARANCES
 
-def calculate_win_rates():
+def calculate_win_loss_rates():
     """
-    Calculate the win rate of each team
-    :return: Dict of countries, win rate
+    Calculate the win rate and loss rate of each team as well as tie
+    :return: Tuple of win rate and loss rate Dicts of countries, win rate
     """
-    global DATA, TEAMS
+    global WIN_RATES, LOSS_RATES
+    WIN_RATES = init_dict(TEAMS)
+    LOSS_RATES = init_dict(TEAMS)
+    for team in TEAMS:
+        WIN_RATES[team] = round(TEAM_WINS[team] / TOTAL_APPEARANCES[team], 4)*100
+        LOSS_RATES[team] = round(100.00-WIN_RATES[team], 4)
+
+    return WIN_RATES, LOSS_RATES
+
+def build_analytic_data():
+    """
+    Build dictionary of calculated data for ease of display
+    :return: Dictionary of teams, with a dict of  their stats
+    """
+
+    analytic_data = {}
+    for team in TEAMS:
+        analytic_data[team] = {
+            "total_appearances": TOTAL_APPEARANCES[team],
+            "win_rate": WIN_RATES[team],
+            "loss_rate": LOSS_RATES[team],
+            "win_total": TEAM_WINS[team],
+            "loss_total": TEAM_LOSSES[team],
+            "draw_total": TEAM_TIES[team]
+        }
+
+    return analytic_data
+
+
 
 get_countries()
-calculate_win_totals()
+calculate_win_loss_totals()
 calculate_total_appearances()
+calculate_win_loss_rates()
+build_analytic_data()
