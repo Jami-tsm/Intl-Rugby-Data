@@ -8,28 +8,37 @@ TOTAL_APPEARANCES = {}
 WIN_RATES = {}
 TEAM_LOSSES = {}
 LOSS_RATES = {}
-TEAM_TIES = {}
+TEAM_DRAWS = {}
+COMPETITIONS = []
+STADIUMS = []
 
-def get_countries():
+def get_countries_competitions_stadiums():
     """
-    Get countries that played from dataset
-    :return: List of countries that played
+    Get countries that played from dataset as well as competitions played
+    :return: List of countries that played, competitions played
     """
-    global TEAMS
+    global TEAMS, COMPETITIONS, STADIUMS
     for line in RAW_DATA:
         if line['home_team'] not in TEAMS:
             TEAMS.append(line['home_team'])
-    return TEAMS
+        if line['competition'] not in COMPETITIONS:
+            COMPETITIONS.append(line['competition'])
+        if line['stadium'] not in STADIUMS:
+            STADIUMS.append(line['stadium'])
+
+    print(STADIUMS)
+    # print(COMPETITIONS)
+    return TEAMS, COMPETITIONS, STADIUMS
 
 def calculate_win_loss_totals():
     """
     Calculate win and loss totals of each country
     :return: Tuple of win loss Dicts of countries, win_total
     """
-    global TEAM_WINS, TEAM_LOSSES, TEAM_TIES
+    global TEAM_WINS, TEAM_LOSSES, TEAM_DRAWS
     TEAM_WINS = init_dict(TEAMS)
     TEAM_LOSSES = init_dict(TEAMS)
-    TEAM_TIES = init_dict(TEAMS)
+    TEAM_DRAWS = init_dict(TEAMS)
 
     for line in RAW_DATA:
         if line['away_score'] > line['home_score']:
@@ -39,10 +48,10 @@ def calculate_win_loss_totals():
             TEAM_WINS[line['home_team']] += 1
             TEAM_LOSSES[line['away_team']] += 1
         elif line['home_score'] == line['away_score']:
-            TEAM_TIES[line['home_team']] += 1
-            TEAM_TIES[line['away_team']] += 1
+            TEAM_DRAWS[line['home_team']] += 1
+            TEAM_DRAWS[line['away_team']] += 1
 
-    return TEAM_WINS, TEAM_LOSSES, TEAM_TIES
+    return TEAM_WINS, TEAM_LOSSES, TEAM_DRAWS
 
 def calculate_total_appearances():
     """
@@ -86,14 +95,14 @@ def build_analytic_data():
             "loss_rate": LOSS_RATES[team],
             "win_total": TEAM_WINS[team],
             "loss_total": TEAM_LOSSES[team],
-            "draw_total": TEAM_TIES[team]
+            "draw_total": TEAM_DRAWS[team]
         }
 
     return analytic_data
 
 
 
-get_countries()
+get_countries_competitions_stadiums()
 calculate_win_loss_totals()
 calculate_total_appearances()
 calculate_win_loss_rates()
