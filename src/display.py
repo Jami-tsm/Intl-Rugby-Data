@@ -1,4 +1,5 @@
 from parsing import parse_file
+
 def display_command_line():
     """
     Display data from rugby dataset to the terminal
