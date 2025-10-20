@@ -6,7 +6,7 @@ DISPLAY_DATA = build_analytic_data()
 
 def display_raw_data_command_line():
     """
-    Display data from rugby dataset to the terminal
+    Display raw data from rugby dataset to the terminal
     :return: None
     """
     global RAW_DATA
@@ -29,7 +29,8 @@ def display_analytic_data_command_line():
         print(f'COUNTRY: {team.upper()}\n'
               f'TOTAL APPEARANCES: {DISPLAY_DATA[team]['total_appearances']} TOTAL WINS: {DISPLAY_DATA[team]['win_total']} '
               f'TOTAL LOSSES: {DISPLAY_DATA[team]['loss_total']} TOTAL DRAWS: {DISPLAY_DATA[team]['draw_total']}\n'
-              f'WIN RATE: {DISPLAY_DATA[team]['win_rate']} LOSS RATE: {DISPLAY_DATA[team]['loss_rate']}')
+              f'WIN RATE: {DISPLAY_DATA[team]['win_rate']} LOSS RATE: {DISPLAY_DATA[team]['loss_rate']}\n'
+              f'HOME APPEARANCES: {DISPLAY_DATA[team]['home_games']} AWAY APPEARANCES: {DISPLAY_DATA[team]['away_games']}')
 
         print("-------------------------------------------------------------------")
 # display_raw_data_command_line()

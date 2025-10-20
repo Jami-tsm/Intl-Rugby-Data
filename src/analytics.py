@@ -11,8 +11,18 @@ LOSS_RATES = {}
 TEAM_DRAWS = {}
 COMPETITIONS = []
 STADIUMS = []
+HOME_GAMES = {}
+AWAY_GAMES = {}
+HOME_WINS = {}
+HOME_LOSSES = {}
+AWAY_WINS = {}
+AWAY_LOSSES = {}
+HOME_WIN_RATES = {}
+AWAY_WIN_RATES = {}
+HOME_LOSS_RATES = {}
+AWAY_LOSS_RATES = {}
 
-def get_countries_competitions_stadiums():
+def get_teams_competitions_stadiums():
     """
     Get countries that played from dataset as well as competitions played
     :return: List of countries that played, competitions played
@@ -26,8 +36,6 @@ def get_countries_competitions_stadiums():
         if line['stadium'] not in STADIUMS:
             STADIUMS.append(line['stadium'])
 
-    print(STADIUMS)
-    # print(COMPETITIONS)
     return TEAMS, COMPETITIONS, STADIUMS
 
 def calculate_win_loss_totals():
@@ -81,6 +89,63 @@ def calculate_win_loss_rates():
 
     return WIN_RATES, LOSS_RATES
 
+def calculate_home_away_win_loss_rates():
+    """
+    Calculate the win rate and loss rate of each team per home and away
+    :return:
+    """
+    global AWAY_WIN_RATES, AWAY_LOSS_RATES, HOME_LOSS_RATES, HOME_WIN_RATES
+    AWAY_LOSS_RATES = init_dict(TEAMS)
+    AWAY_WIN_RATES = init_dict(TEAMS)
+    HOME_WIN_RATES = init_dict(TEAMS)
+    HOME_LOSS_RATES = init_dict(TEAMS)
+
+    for team in TEAMS:
+        HOME_WIN_RATES[team] = round(HOME_WINS[team] / HOME_GAMES[team], 4)*100
+        HOME_LOSS_RATES[team] = round(100.00-HOME_WIN_RATES[team], 4)
+        AWAY_WIN_RATES[team] = round(AWAY_WINS[team] / AWAY_GAMES[team], 4) * 100
+        AWAY_LOSS_RATES[team] = round(100.00-AWAY_WIN_RATES[team], 4)
+
+
+def calculate_home_away_totals():
+    """
+    Calculate the home and away game totals for all teams
+    :return: Tuple of dictionaries, one home, one away
+    """
+    global HOME_GAMES, AWAY_GAMES
+    HOME_GAMES = init_dict(TEAMS)
+    AWAY_GAMES = init_dict(TEAMS)
+    for team in TEAMS:
+        for line in RAW_DATA:
+            if line['away_team'] == team:
+                AWAY_GAMES[team] += 1
+            elif line['home_team'] == team:
+                HOME_GAMES[team] += 1
+    return HOME_GAMES, AWAY_GAMES
+
+def calculate_home_away_win_loss():
+    """
+    Calculate the home and away win/loss totals for each team
+    :return: None
+    """
+    global HOME_WINS, AWAY_WINS, HOME_LOSSES, AWAY_LOSSES
+    HOME_WINS = init_dict(TEAMS)
+    HOME_LOSSES = init_dict(TEAMS)
+    AWAY_WINS = init_dict(TEAMS)
+    AWAY_LOSSES = init_dict(TEAMS)
+
+    for team in TEAMS:
+        for line in RAW_DATA:
+            if line['home_team'] == team and (line['home_score'] > line['away_score']):
+                HOME_WINS[team] += 1
+            elif line['home_team'] == team and (line['away_score'] > line['home_score']):
+                HOME_LOSSES[team] += 1
+            elif line['away_team'] == team and (line['home_score'] > line['away_score']):
+                AWAY_LOSSES[team] += 1
+            elif line['away_team'] == team and (line['away_score'] > line['home_score']):
+                AWAY_WINS[team] += 1
+
+
 def build_analytic_data():
     """
     Build dictionary of calculated data for ease of display
@@ -95,15 +160,28 @@ def build_analytic_data():
             "loss_rate": LOSS_RATES[team],
             "win_total": TEAM_WINS[team],
             "loss_total": TEAM_LOSSES[team],
-            "draw_total": TEAM_DRAWS[team]
+            "draw_total": TEAM_DRAWS[team],
+            "home_games": HOME_GAMES[team],
+            "away_games": AWAY_GAMES[team],
+            "away_wins": AWAY_WINS[team],
+            "home_wins": HOME_WINS[team],
+            "away_losses": AWAY_LOSSES[team],
+            "home_losses": HOME_LOSSES[team],
+            "home_win_rate": HOME_WIN_RATES[team],
+            "home_loss_rate": HOME_LOSS_RATES[team],
+            "away_win_rate": AWAY_WIN_RATES[team],
+            "away_loss_rate": AWAY_LOSS_RATES[team]
         }
 
     return analytic_data
 
 
 
-get_countries_competitions_stadiums()
+get_teams_competitions_stadiums()
 calculate_win_loss_totals()
 calculate_total_appearances()
 calculate_win_loss_rates()
+calculate_home_away_totals()
+calculate_home_away_win_loss()
+calculate_home_away_win_loss_rates()
 build_analytic_data()
